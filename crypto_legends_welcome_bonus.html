@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crypto Legends - Welcome Bonus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'crypto-black': '#0a0a0f',
+                        'crypto-dark': '#12121a',
+                        'neon-green': '#00ff88',
+                        'electric-purple': '#b829f7',
+                        'bonus-orange': '#ff6b35',
+                        'bonus-gold': '#ffd700',
+                    },
+                    animation: {
+                        'spin-slow': 'spin 3s linear infinite',
+                        'bounce-slight': 'bounceSlight 2s infinite',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'confetti': 'confetti 3s ease-out forwards',
+                    },
+                    keyframes: {
+                        bounceSlight: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(255, 107, 53, 0.5)' },
+                            '50%': { boxShadow: '0 0 40px rgba(255, 107, 53, 0.8)' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(100%)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        confetti: {
+                            '0%': { transform: 'translateY(0) rotate(0deg)', opacity: '1' },
+                            '100%': { transform: 'translateY(100vh) rotate(720deg)', opacity: '0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #12121a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: right bottom;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            border-radius: 50%;
+            border: 4px solid #fff;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 50px;
+            background: linear-gradient(to bottom, #ff6b35, #ff8c5a);
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 20;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+        }
+
+        .bonus-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-bonus {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-bonus:active {
+            transform: scale(0.98);
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+        }
+
+        .countdown-bar {
+            background: linear-gradient(90deg, #ff6b35, #ffd700);
+            height: 4px;
+            animation: countdown 180s linear forwards;
+        }
+
+        @keyframes countdown {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        .shine {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body class="text-white">
+
+    <!-- Confetti Container -->
+    <div id="confetti-container" class="fixed inset-0 pointer-events-none z-50 overflow-hidden hidden"></div>
+
+    <!-- Main Landing Page (Background) -->
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="text-center">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-neon-green to-electric-purple flex items-center justify-center text-3xl font-black">
+                CL
+            </div>
+            <h1 class="text-3xl font-black mb-2">Crypto Legends</h1>
+            <p class="text-gray-400">Loading your trading experience...</p>
+        </div>
+    </div>
+
+    <!-- Welcome Modal Overlay -->
+    <div id="welcomeModal" class="fixed inset-0 z-40 modal-overlay flex items-center justify-center p-4">
+        <div class="w-full max-w-md animate-slide-up">
+
+            <!-- Countdown Timer Bar -->
+            <div class="bg-red-500/20 border border-red-500/30 rounded-t-2xl px-4 py-2 text-center">
+                <p class="text-red-400 text-xs font-bold">⏰ You have <span id="countdown">03:00</span> to claim</p>
+            </div>
+            <div class="bg-gray-800 rounded-b-lg overflow-hidden mb-4">
+                <div class="countdown-bar"></div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="bonus-card rounded-3xl p-6 relative overflow-hidden">
+                <div class="shine"></div>
+
+                <!-- Header -->
+                <div class="text-center mb-6">
+                    <div class="text-4xl mb-2">👑</div>
+                    <p class="text-bonus-gold text-xs font-bold tracking-widest uppercase mb-1">Crypto Legends Exclusive</p>
+                    <h2 class="text-2xl font-black text-white">Welcome Bonus!</h2>
+                    <p class="text-gray-300 text-sm mt-2">Spin the wheel to win your starter bonus</p>
+                </div>
+
+                <!-- Wheel Container -->
+                <div class="wheel-container mb-6" id="wheelContainer">
+                    <div class="pointer"></div>
+                    <div class="wheel" id="wheel">
+                        <!-- Segments -->
+                        <div class="wheel-segment" style="background: #ff6b35; transform: rotate(0deg); color: white;">
+                            <span style="transform: rotate(25deg); display: block;">🎁<br>1000</span>
+                        </div>
+                        <div class="wheel-segment" style="background: #00ff88; transform: rotate(60deg); color: #0a0a0f;">
+                            <span style="transform: rotate(25deg); display: block;">💎<br>5000</span>
+                        </div>
+                        <div class="wheel-segment" style="background: #b829f7; transform: rotate(120deg); color: white;">
+                            <span style="transform: rotate(25deg); display: block;">🎁<br>2000</span>
+                        </div>
+                        <div class="wheel-segment" style="background: #ffd700; transform: rotate(180deg); color: #0a0a0f;">
+                            <span style="transform: rotate(25deg); display: block;">👑<br>10000</span>
+                        </div>
+                        <div class="wheel-segment" style="background: #ff6b35; transform: rotate(240deg); color: white;">
+                            <span style="transform: rotate(25deg); display: block;">🎁<br>1500</span>
+                        </div>
+                        <div class="wheel-segment" style="background: #00ff88; transform: rotate(300deg); color: #0a0a0f;">
+                            <span style="transform: rotate(25deg); display: block;">💎<br>3000</span>
+                        </div>
+                    </div>
+                    <div class="wheel-center">🎯</div>
+                </div>
+
+                <!-- Spin Button -->
+                <button id="spinBtn" onclick="spinWheel()" class="w-full py-4 rounded-xl font-black text-lg text-white bg-gradient-to-r from-electric-purple to-neon-green shadow-lg transform transition hover:scale-105 active:scale-95 mb-4">
+                    SPIN TO WIN 🎰
+                </button>
+
+                <p class="text-center text-xs text-gray-400">One spin per new user • Bonus applied instantly</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Modal (Hidden initially) -->
+    <div id="resultModal" class="fixed inset-0 z-50 modal-overlay flex items-center justify-center p-4 hidden">
+        <div class="w-full max-w-md animate-slide-up">
+            <div class="bonus-card rounded-3xl p-8 text-center relative overflow-hidden">
+                <div class="shine"></div>
+
+                <div class="text-6xl mb-4 animate-bounce-slight">🎉</div>
+                <h2 class="text-3xl font-black text-white mb-2">Congratulations!</h2>
+                <p class="text-xl text-bonus-gold font-bold mb-6">You Won</p>
+
+                <!-- Prize Display -->
+                <div class="bg-white/10 rounded-2xl p-6 mb-6 border border-white/20">
+                    <div class="flex items-center justify-center gap-3">
+                        <span class="text-4xl">🎁</span>
+                        <div class="bg-neon-green text-crypto-black px-4 py-2 rounded-full font-black text-2xl">
+                            +<span id="prizeAmount">3000</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 text-sm mt-2">Starting Bonus Coins</p>
+                </div>
+
+                <p class="text-gray-300 text-sm mb-6">Download the app and get your bonus instantly</p>
+
+                <!-- CTA Button - Opens External URL -->
+                <a href="https://apps.apple.com" target="_blank" id="downloadBtn" class="btn-bonus block w-full py-4 rounded-xl font-black text-lg text-white text-center relative overflow-hidden">
+                    <span class="relative z-10">DOWNLOAD NOW →</span>
+                </a>
+
+                <p class="text-gray-500 text-xs mt-4">Available on iOS & Android</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is first time
+        function isFirstTimeUser() {
+            return !localStorage.getItem('cryptoLegendsVisited');
+        }
+
+        // Set visited flag
+        function markAsVisited() {
+            localStorage.setItem('cryptoLegendsVisited', 'true');
+            localStorage.setItem('visitDate', new Date().toISOString());
+        }
+
+        // Countdown Timer
+        let timeLeft = 180; // 3 minutes in seconds
+        const countdownEl = document.getElementById('countdown');
+
+        function updateCountdown() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            countdownEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft > 0) {
+                timeLeft--;
+                setTimeout(updateCountdown, 1000);
+            } else {
+                countdownEl.textContent = "EXPIRED";
+                countdownEl.parentElement.classList.add('text-red-600');
+            }
+        }
+
+        // Wheel Spin Logic
+        let hasSpun = false;
+        const prizes = [1000, 5000, 2000, 10000, 1500, 3000];
+        const prizeWeights = [30, 10, 25, 5, 20, 10]; // Probability weights
+
+        function getRandomPrize() {
+            const totalWeight = prizeWeights.reduce((a, b) => a + b, 0);
+            let random = Math.random() * totalWeight;
+
+            for (let i = 0; i < prizes.length; i++) {
+                random -= prizeWeights[i];
+                if (random <= 0) return { prize: prizes[i], index: i };
+            }
+            return { prize: prizes[0], index: 0 };
+        }
+
+        function spinWheel() {
+            if (hasSpun) return;
+            hasSpun = true;
+
+            const wheel = document.getElementById('wheel');
+            const spinBtn = document.getElementById('spinBtn');
+            const result = getRandomPrize();
+
+            // Disable button
+            spinBtn.disabled = true;
+            spinBtn.textContent = 'SPINNING...';
+            spinBtn.classList.add('opacity-50');
+
+            // Calculate rotation (360 * 5 + segment angle + random offset)
+            const segmentAngle = 360 / 6;
+            const targetAngle = 360 * 5 + (result.index * segmentAngle) + Math.random() * 40 + 10;
+
+            wheel.style.transform = `rotate(${targetAngle}deg)`;
+
+            // Show result after spin
+            setTimeout(() => {
+                showResult(result.prize);
+                createConfetti();
+                markAsVisited();
+            }, 4000);
+        }
+
+        function showResult(prize) {
+            document.getElementById('welcomeModal').classList.add('hidden');
+            document.getElementById('resultModal').classList.remove('hidden');
+            document.getElementById('prizeAmount').textContent = prize;
+
+            // Store prize in localStorage
+            localStorage.setItem('welcomeBonus', prize);
+        }
+
+        // Confetti Effect
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.classList.remove('hidden');
+
+            const colors = ['#00ff88', '#b829f7', '#ff6b35', '#ffd700', '#ff8c5a'];
+
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece animate-confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                container.appendChild(confetti);
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            if (!isFirstTimeUser()) {
+                // Returning user - skip modal and redirect or show main content
+                document.getElementById('welcomeModal').classList.add('hidden');
+                document.querySelector('.min-h-screen').innerHTML = `
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-neon-green to-electric-purple flex items-center justify-center text-3xl font-black">
+                            CL
+                        </div>
+                        <h1 class="text-3xl font-black mb-2">Welcome Back!</h1>
+                        <p class="text-gray-400 mb-6">Ready to continue your trading journey?</p>
+                        <a href="https://apps.apple.com" target="_blank" class="btn-bonus inline-block px-8 py-4 rounded-xl font-bold text-white">
+                            OPEN APP →
+                        </a>
+                    </div>
+                `;
+            } else {
+                updateCountdown();
+            }
+        };
+
+        // Prevent closing modal by clicking outside
+        document.getElementById('welcomeModal').addEventListener('click', function(e) {
+            if (e.target === this && !hasSpun) {
+                // Shake animation to indicate must spin
+                this.querySelector('.bonus-card').style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    this.querySelector('.bonus-card').style.animation = '';
+                }, 500);
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+</body>
+</html>
